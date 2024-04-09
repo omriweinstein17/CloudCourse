@@ -6,8 +6,8 @@ router.get("/", async (req: Request, res: Response) => {
   res.send("hello yossi ");
 });
 
-router.get("/:id", async (req: Request, res: Response) => {});
-
-router.post("/", async (req: Request, res: Response) => {});
+router.get("/:id", async (req: Request, res: Response) => {
+  res.send("hello yossi ");
+});
 
 module.exports = router;
