@@ -1,9 +1,0 @@
-{
-  "devDependencies": {
-    "@types/uuid": "^9.0.8"
-  },
-  "dependencies": {
-    "@google/generative-ai": "^0.8.0",
-    "uuid": "^9.0.1"
-  }
-}

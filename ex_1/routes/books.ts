@@ -17,7 +17,11 @@ const genre: string[] = [
 ];
 
 router.get("/", async (req: Request, res: Response) => {
-  res.send(Library);
+  try {
+    res.send(Library);
+  } catch (err) {
+    res.status(500).json({ error: "Unprocessable Content" });
+  }
 });
 
 router.get("/:id", async (req: Request, res: Response) => {});
