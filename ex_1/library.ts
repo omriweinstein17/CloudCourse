@@ -1,15 +1,6 @@
-// Define the type for a book
-export interface Book {
-  title: string;
-  authors: string;
-  ISBN: string;
-  publisher: string;
-  publishedDate: string;
-  genre: string;
-  language: string[];
-  summary: string;
-  id: string;
-}
-const Library: Book[] = [];
+import { Book, Rating } from "./interfaces";
 
-module.exports = Library;
+const Library: Book[] = [];
+const Ratings: Rating[] = [];
+
+module.exports = { Library, Ratings };
