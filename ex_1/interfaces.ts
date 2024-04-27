@@ -22,7 +22,7 @@ export interface Fields {
   language?: string;
 }
 export interface Rating {
-  values: number[];
+  values?: number[];
   average: number;
   title: string;
   id: string;

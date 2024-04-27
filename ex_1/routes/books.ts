@@ -26,40 +26,34 @@ const bookFields: string[] = [
   "language",
   "summary",
 ];
+const languages: string[] = ["heb", "eng", "spa", "chi"];
 
 router.get("/", async (req: Request, res: Response) => {
   try {
-    const queryString = querystring.stringify(req.query);
-    let fields: Fields = {};
-    if (queryString.includes("language%20contains%20")) {
-      fields.language = queryString.split("%20")[2].slice(0, -1);
-    } else {
-      fields = req.query;
-    }
+    let fields: Fields = req.query;
     console.log(fields);
     Object.entries(fields).forEach(([key, value]) => {
       if (!bookFields.includes(key) || key === "summary")
         throw new Error(`invalid Fields`);
+      if (key === "language") {
+        if (!languages.includes(value)) throw new Error(`invalid language`);
+      }
     });
     const books: Book[] = [];
     if (fields) {
-      if (fields.language) {
-        Library.forEach((book: Book) => {
-          if (book.language.includes(fields.language!)) {
-            books.push(book);
-          }
-        });
-      } else {
-        Library.forEach((book: Book) => {
-          let addToBooks: boolean = true;
-          Object.entries(fields).forEach(([key, value]) => {
-            if (book[key] !== value) {
+      Library.forEach((book: Book) => {
+        let addToBooks: boolean = true;
+        Object.entries(fields).forEach(([key, value]) => {
+          if (key === "language") {
+            if (!book.language.includes(value)) {
               addToBooks = false;
             }
-          });
-          if (addToBooks) books.push(book);
+          } else if (book[key] !== value) {
+            addToBooks = false;
+          }
         });
-      }
+        if (addToBooks) books.push(book);
+      });
       return res.status(200).json(books);
     } else {
       return res.status(200).json(Library);
