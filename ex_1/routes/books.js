@@ -105,10 +105,12 @@ router.post("/", async (req, res) => {
       `https://www.googleapis.com/books/v1/volumes?q=isbn:${body.ISBN}&fields=items(volumeInfo(authors,publisher,publishedDate))`
     );
     const volumeInfo = googleResponse.data.items[0].volumeInfo;
-    volumeInfo.authors.forEach((element, i) => {
-      if (i === 0) authors += element;
-      else authors += " and " + element;
-    });
+    if (volumeInfo.authors) {
+      volumeInfo.authors.forEach((element, i) => {
+        if (i === 0) authors += element;
+        else authors += " and " + element;
+      });
+    }
     book.authors = authors ? authors : "missing";
     book.publishedDate = volumeInfo.publishedDate
       ? volumeInfo.publishedDate
