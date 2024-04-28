@@ -6,7 +6,7 @@ const router = Router();
 
 router.get("/", async (req: Request, res: Response) => {
   const top: Rating[] = [];
-  const sortedRatings: Rating[] = Ratings.sort((a, b) => {
+  const sortedRatings: Rating[] = Ratings.sort((a: Rating, b: Rating) => {
     return b.average - a.average;
   });
   sortedRatings.forEach((rating: Rating, index: number) => {

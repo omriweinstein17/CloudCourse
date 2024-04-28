@@ -31,7 +31,6 @@ const languages: string[] = ["heb", "eng", "spa", "chi"];
 router.get("/", async (req: Request, res: Response) => {
   try {
     let fields: Fields = req.query;
-    console.log(fields);
     Object.entries(fields).forEach(([key, value]) => {
       if (!bookFields.includes(key) || key === "summary")
         throw new Error(`invalid Fields`);
@@ -60,7 +59,7 @@ router.get("/", async (req: Request, res: Response) => {
     }
   } catch (err: any) {
     return res
-      .status(500)
+      .status(404)
       .json({ error: err.message ? err.message : "Internal Server Error" });
   }
 });
@@ -147,7 +146,7 @@ router.post("/", async (req: Request, res: Response) => {
       average: 0.0,
     };
     Ratings.push(newRating);
-    return res.status(201).json({ id: book.id });
+    return res.status(201).json(book.id);
   } catch (error: any) {
     return res
       .status(500)
@@ -157,6 +156,8 @@ router.post("/", async (req: Request, res: Response) => {
 
 router.put("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
+  const index = Library.findIndex((book: Book) => book.id === id);
+  if (index === -1) return res.status(404).json({ error: "Book not found" });
   const book = req.body;
   // Check if the body contains all the required fields
   const hasAllFields = bookFields.every((field) => book.hasOwnProperty(field));
@@ -184,7 +185,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     return res.status(404).json({ error: "Book not found" });
   } else {
     Library[bookIndex] = book;
-    return res.status(200).json({ id });
+    return res.status(200).json(id);
   }
 });
 
@@ -196,7 +197,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     Library.splice(index, 1);
     const ratingIndex = Ratings.findIndex((rating: Rating) => rating.id === id);
     Ratings.splice(ratingIndex, 1);
-    return res.status(200).json({ id: id });
+    return res.status(200).json(id);
   }
 });
 
