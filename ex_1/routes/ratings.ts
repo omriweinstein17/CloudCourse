@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-const { Ratings, Library } = require("../library.ts");
+const { Ratings, Library } = require("../library");
 import { Book, Rating } from "../interfaces";
 
 const router = Router();

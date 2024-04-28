@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { Book, Rating } from "../interfaces";
-const { Ratings, Library } = require("../library.ts");
+const { Ratings, Library } = require("../library");
 
 const router = Router();
 

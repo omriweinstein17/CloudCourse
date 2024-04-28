@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { Book, Fields, Rating } from "../interfaces";
-const { Library, Ratings } = require("../library.ts");
+const { Library, Ratings } = require("../library");
 const router = Router();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const querystring = require("querystring");
