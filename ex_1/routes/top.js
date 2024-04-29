@@ -9,7 +9,11 @@ router.get("/", async (req, res) => {
     return b.average - a.average;
   });
   sortedRatings.forEach((rating, index) => {
-    if (top.length >= 3 && rating.average !== sortedRatings[index + 1].average)
+    if (
+      top.length >= 3 &&
+      sortedRatings[index + 1] &&
+      rating.average !== sortedRatings[index + 1].average
+    )
       return;
     if (rating.values.length >= 3) {
       top.push({
