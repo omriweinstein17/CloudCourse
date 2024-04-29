@@ -4,25 +4,37 @@ const { Ratings } = require("../library");
 const router = Router();
 
 router.get("/", async (req, res) => {
+  // Filter ratings with at least 3 values and sort by average descending
+  const eligibleRatings = Ratings.filter((rating) => rating.values.length >= 3);
+  const sortedRatings = eligibleRatings.sort((a, b) => b.average - a.average);
+
   const top = [];
-  const sortedRatings = Ratings.sort((a, b) => {
-    return b.average - a.average;
-  });
+
   sortedRatings.forEach((rating, index) => {
-    if (
-      top.length >= 3 &&
-      sortedRatings[index + 1] &&
-      rating.average !== sortedRatings[index + 1].average
-    )
-      return;
-    if (rating.values.length >= 3) {
+    if (top.length < 3) {
+      // If fewer than 3 items, add directly
+      top.push({
+        title: rating.title,
+        id: rating.id,
+        average: rating.average,
+      });
+    } else if (
+      top.length === 3 &&
+      rating.average === top[top.length - 1].average
+    ) {
+      // If exactly 3 items and current item ties with the third, add it
       top.push({
         title: rating.title,
         id: rating.id,
         average: rating.average,
       });
     }
+    // Stop processing if the current rating is less than the last item in top and top has 3 or more items
+    if (top.length >= 3 && rating.average < top[top.length - 1].average) {
+      return;
+    }
   });
+
   return res.status(200).json(top);
 });
 
