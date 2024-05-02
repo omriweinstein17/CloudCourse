@@ -177,19 +177,20 @@ router.put("/:id", async (req, res) => {
     typeof book.genre === "string" &&
     genre.includes(book.genre) &&
     typeof book.id === "string" &&
+    book.id === id &&
     Array.isArray(book.language) &&
     typeof book.summary === "string";
-  if (!isValidBook)
-    return res
-      .status(422)
-      .json({ error: "Must contains all books fields with the correct types" });
-  const bookIndex = Library.findIndex((book) => (book.id = id));
-  if (bookIndex === -1) {
-    return res.status(404).json({ error: "Book not found" });
-  } else {
-    Library[bookIndex] = book;
-    return res.status(200).json(id);
+  if (!isValidBook) {
+    return res.status(422).json({
+      error: "Must contains all books fields with the correct types and values",
+    });
   }
+  const ratingIndex = Ratings.findIndex((rating) => rating.id === book.id);
+  Library[index] = book;
+  if (ratingIndex !== -1) {
+    Ratings[ratingIndex].title = book.title;
+  }
+  return res.status(200).json(id);
 });
 
 router.delete("/:id", async (req, res) => {
