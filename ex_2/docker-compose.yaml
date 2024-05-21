@@ -1,14 +1,15 @@
 version: "1" # version of compose format
 
 services:
-  nginx:
-    image: nginx:latest # pulling image from DockerHub
+  mongodb:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME:
+      MONGO_INITDB_ROOT_PASSWORD:
     ports:
-      - "80:80" # host:container
+      - "27017:27017"
     volumes:
-      - type: bind
-        source: ./nginx.conf # host directory
-        target: /etc/nginx/nginx.conf # container directory
+      - mongodb_data_container:/data/db
   books-service:
     build: ./books # path is relative to docker-compose-shorthand.yml location
     volumes:
@@ -28,4 +29,12 @@ services:
       FLASK_DEBUG: "true"
     ports:
       - "5002:80" # host:container
+  nginx:
+    image: nginx:latest # pulling image from DockerHub
+    ports:
+      - "80:80" # host:container
+    volumes:
+      - type: bind
+        source: ./nginx.conf # host directory
+        target: /etc/nginx/nginx.conf # container directory
 
