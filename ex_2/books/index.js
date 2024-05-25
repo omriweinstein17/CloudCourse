@@ -1,10 +1,13 @@
 const app = require("./app.js");
 const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 const PORT = process.env.PORT || 8000;
 
 // Connection URL
-const mongoURI = "mongodb://localhost:27017/mydatabase"; // Change this to your MongoDB URI
+const mongoURI = process.env.MONGODB_URL; // Change this to your MongoDB URI
 
 mongoose
   .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })

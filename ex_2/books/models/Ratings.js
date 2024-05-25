@@ -11,27 +11,23 @@ const RatingSchema = new Schema({
     type: String,
     required: true,
   },
-  genre: {
-    type: String,
+  values: {
+    type: [Number],
     required: true,
   },
-  authors: {
-    type: String,
+  average: {
+    type: Number,
     required: true,
   },
-  ISBN: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  publishedDate: {
-    type: String,
-    required: true,
-  },
-  publisher: {
-    type: String,
-    required: true,
+});
+RatingSchema.set("toJSON", {
+  virtuals: true,
+  transform: (doc, ret) => {
+    delete ret._id;
+    delete ret.__v;
+    return ret;
   },
 });
 
 const Rating = mongoose.model("rating", RatingSchema);
+module.exports = Rating;
