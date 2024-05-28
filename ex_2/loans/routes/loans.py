@@ -1,11 +1,15 @@
 import requests
 from flask import Blueprint, jsonify, request
+from pymongo import MongoClient
 import uuid
 import re
 
 api_bp = Blueprint('api', __name__)
-# Sample data structure for storing loans
-loans = {}
+
+MONGODB_URL = "mongodb+srv://galtrodel:fxeQJc8Kms8NncXa@cluster0.runjg3c.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+client = MongoClient(MONGODB_URL)
+db = client['library']
+loans_collection = db['loans']
 
 @api_bp.route('/loans', methods=['POST'])
 def create_loan():
@@ -22,7 +26,7 @@ def create_loan():
     if is_valid_date(data['loanDate']) == False:
         return jsonify({'error': 'Invalid date format'}), 422
     # Fetch data from our books API
-    base_url = "http://localhost:8000/books"
+    base_url = "http://localhost:80/books"
     query = f"?q=isbn:{data.ISBN}"
     try:
         response = requests.get(base_url + query)
@@ -37,23 +41,32 @@ def create_loan():
             'bookID': response.json()['id'],
             'loanID': uuid.uuid4()
         }
-        loans[loan['bookID']] = loan
+        # Store the loan in our data structure
+        loans_collection.insert_one(loan)  
         return jsonify(loan), 201
     except:
         return jsonify({"error": "this is an error"}), 404
 
 @api_bp.route('/loans', methods=['GET'])
 def get_loans():
-    return jsonify(list(loans.values())), 200
+     # all loans without the field _id
+    loans = list(loans_collection.find({}, {'_id': 0})) 
+    return jsonify(loans), 200
 
 @api_bp.route('/loans/<string:id>', methods=['GET'])
 def get_loan(id):
-    return jsonify(loans[id]), 200
+    # Search for loan by loanID
+    loan = loans_collection.find_one({'loanID': id}, {'_id': 0})  
+    if loan:
+        return jsonify(loan), 200
+    else:
+        return jsonify({'error': 'Loan not found'}), 404
     
 @api_bp.route('/loans/<string:id>', methods=['DELETE'])
 def delete_loan(id):
-    if id in loans:
-        del loans[id]
+    # Delete loan by loanID
+    result = loans_collection.delete_one({'loanID': id})  
+    if result.deleted_count > 0:
         return jsonify({'id': id}), 200
     else:
         return jsonify({'error': 'Loan not found'}), 404
