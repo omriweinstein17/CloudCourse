@@ -3,14 +3,15 @@ from flask import Blueprint, jsonify, request
 from pymongo import MongoClient
 import uuid
 import re
-import os
+from flask import PyMongo
 
-loans_bp = Blueprint('loans', __name__)
 
-mongo_uri = os.getenv("MONGODB_URI", "mongodb+srv://galtrodel:fxeQJc8Kms8NncXa@cluster0.runjg3c.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-client = MongoClient(mongo_uri)
-db = client['myDB'] # Assuming the database name is 'myDB', check that out
-loans_collection = db["loans"]
+loans_bp = Blueprint('loans_bp', __name__)
+mongo = PyMongo()
+# mongo_uri = os.getenv("MONGODB_URI", "mongodb+srv://galtrodel:fxeQJc8Kms8NncXa@cluster0.runjg3c.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+# client = MongoClient(mongo_uri)
+# db = client['myDB'] # Assuming the database name is 'myDB', check that out
+# loans_collection = db["loans"]
 
 @loans_bp.route('/loans', methods=['POST'])
 def create_loan():
@@ -19,6 +20,7 @@ def create_loan():
         return jsonify({'error': 'Unsupported Media Type, expected application/json'}), 415
     # Get data from request
     data = request.get_json()
+    print("create_loan")
     # Check for required fields
     for field in ['memberName', 'ISBN', 'loanDate']:
         if field not in data:
