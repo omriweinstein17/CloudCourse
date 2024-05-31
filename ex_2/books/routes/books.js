@@ -28,6 +28,7 @@ const bookFields = [
 router.get("/", async (req, res) => {
   try {
     let fields = req.query;
+    console.log(fields);
     Object.entries(fields).forEach(([key, value]) => {
       if (!bookFields.includes(key)) throw new Error(`invalid Fields`);
     });

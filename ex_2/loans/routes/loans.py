@@ -8,7 +8,7 @@ api_bp = Blueprint('api', __name__)
 
 MONGODB_URL = "mongodb+srv://galtrodel:fxeQJc8Kms8NncXa@cluster0.runjg3c.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = MongoClient(MONGODB_URL)
-db = client['library']
+db = client['test']
 loans_collection = db['loans']
 
 @api_bp.route('/loans', methods=['POST'])
@@ -18,6 +18,7 @@ def create_loan():
         return jsonify({'error': 'Unsupported Media Type, expected application/json'}), 415
     # Get data from request
     data = request.get_json()
+    print(data['ISBN'])
     # Check for required fields
     for field in ['memberName', 'ISBN', 'loanDate']:
         if field not in data:
@@ -26,25 +27,28 @@ def create_loan():
     if is_valid_date(data['loanDate']) == False:
         return jsonify({'error': 'Invalid date format'}), 422
     # Fetch data from our books API
-    base_url = "http://localhost:80/books"
-    query = f"?q=isbn:{data.ISBN}"
+    base_url = "http://localhost:3000/books"
+    query = f"?ISBN={data['ISBN']}"
     try:
         response = requests.get(base_url + query)
         response.raise_for_status()
+        book = response.json()[0]
+        print(book)
         if response.status_code != 200:
             return jsonify({'error': 'unable to connect to external service'}), 500
         loan = {
             'memberName': data['memberName'],
             'ISBN': data['ISBN'],
             'loanDate': data['loanDate'],
-            'title': response.json()['title'],
-            'bookID': response.json()['id'],
+            'title': book["title"],
+            'bookID': book['id'],
             'loanID': uuid.uuid4()
         }
         # Store the loan in our data structure
         loans_collection.insert_one(loan)  
         return jsonify(loan), 201
-    except:
+    except requests.exceptions.RequestException as e:
+        print(e.response.text)
         return jsonify({"error": "this is an error"}), 404
 
 @api_bp.route('/loans', methods=['GET'])

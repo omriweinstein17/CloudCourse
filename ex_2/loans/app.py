@@ -9,4 +9,4 @@ def index():
     return "Welcome to the loans API. We r glad u came!"
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=8000)
+    app.run(host='0.0.0.0', debug=True, port=8002)

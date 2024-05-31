@@ -3,39 +3,39 @@ version: "1" # version of compose format
 services:
   mongodb:
     image: mongo:latest
-    environment:
-      MONGO_INITDB_ROOT_USERNAME:
-      MONGO_INITDB_ROOT_PASSWORD:
     ports:
       - "27017:27017"
-    volumes:
-      - mongodb_data_container:/data/db
   books-service:
     build: ./books # path is relative to docker-compose-shorthand.yml location
     volumes:
       - type: bind
-        source: ./app #host directory
-        target: /app # container directory
+        source: ./books #host directory
+        target: /usr/src/app # container directory
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017/BooksDB
     ports:
-      - "5001:80" # host:container
+      - "5001:8001" # host:container
+    depends_on:
+      - "mongodb"
   loans-service:
     build: ./loans # path is relative to docker-compose-shorthand.yml location
     volumes:
       - type: bind
-        source: ./app #host directory
+        source: ./loans #host directory
         target: /app # container directory
     environment:
-      # tells flask run to run in development mode and reload the code on change. This mode should only be used in development.
-      FLASK_DEBUG: "true"
+      - MONGO_URL=mongodb://mongodb:27017/LoansDB
     ports:
-      - "5002:80" # host:container
-  nginx:
-    image: nginx:latest # pulling image from DockerHub
-    ports:
-      - "80:80" # host:container
-    volumes:
-      - type: bind
-        source: ./nginx.conf # host directory
-        target: /etc/nginx/nginx.conf # container directory
+      - "5002:8002" # host:container
+    depends_on:
+      - "mongodb"
+  # nginx:
+  #   image: nginx:latest # pulling image from DockerHub
+  #   ports:
+  #     - "80:80" # host:container
+  #   volumes:
+  #     - type: bind
+  #       source: ./nginx.conf # host directory
+  #       target: /etc/nginx/nginx.conf # container directory
 volumes:
   mongodb_data_container:
