@@ -1,24 +1,23 @@
 import requests
 from flask import Blueprint, jsonify, request
-from pymongo import MongoClient
+from flask_pymongo import PyMongo
 import uuid
 import re
-from flask import PyMongo
+import os
+
+loans_bp = Blueprint('loans_bp', __name__)
+
+mongo = PyMongo()
 
 
-MONGODB_URL = "mongodb+srv://galtrodel:fxeQJc8Kms8NncXa@cluster0.runjg3c.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-client = MongoClient(MONGODB_URL)
-db = client['test']
-loans_collection = db['loans']
-
-@loans_bp.route('/loans', methods=['POST'])
+@loans_bp.route('/', methods=['POST'])
 def create_loan():
+    print("create_loan")
     # Check for correct content type
     if request.content_type != 'application/json':
         return jsonify({'error': 'Unsupported Media Type, expected application/json'}), 415
     # Get data from request
     data = request.get_json()
-    print(data['ISBN'])
     # Check for required fields
     for field in ['memberName', 'ISBN', 'loanDate']:
         if field not in data:
@@ -27,49 +26,54 @@ def create_loan():
     if is_valid_date(data['loanDate']) == False:
         return jsonify({'error': 'Invalid date format'}), 422
     # Fetch data from our books API
-    base_url = "http://localhost:3000/books"
-    query = f"?ISBN={data['ISBN']}"
+    base_url = "http://books-service:8001/books"
+    isbn = data['ISBN']
     try:
-        response = requests.get(base_url + query)
+        response = requests.get(base_url, params={'ISBN': isbn})
         response.raise_for_status()
-        book = response.json()[0]
+        print(response.json())
+        book = None
+        if response.json():
+            book = response.json()[0]
         print(book)
-        if response.status_code != 200:
-            return jsonify({'error': 'unable to connect to external service'}), 500
-        loan = {
+        if response.status_code == 404:
+            return jsonify({'error': 'book not found'}), 404
+        new_loan = {
+            '_id': str(uuid.uuid4()),
             'memberName': data['memberName'],
             'ISBN': data['ISBN'],
             'loanDate': data['loanDate'],
-            'title': book["title"],
-            'bookID': book['id'],
-            'loanID': uuid.uuid4()
+            'title': book['title'],
+            'bookID': book['id']
         }
         # Store the loan in our data structure
-        loans_collection.insert_one(loan)  
-        return jsonify(loan), 201
+        mongo.db.loans.insert_one(new_loan) 
+        return jsonify(new_loan), 201
     except requests.exceptions.RequestException as e:
-        print(e.response.text)
-        return jsonify({"error": "this is an error"}), 404
+        print(e)
+        return jsonify({"error": "this is an error"}), 500
 
-@loans_bp.route('/loans', methods=['GET'])
+@loans_bp.route('/', methods=['GET'])
 def get_loans():
-     # all loans without the field _id
-    loans = list(loans_collection.find({}, {'_id': 0})) 
+    loans = list(mongo.db.loans.find())
+    for loan in loans:
+        loan['_id'] = str(loan['_id'])
     return jsonify(loans), 200
 
-@loans_bp.route('/loans/<string:id>', methods=['GET'])
+@loans_bp.route('/<string:id>', methods=['GET'])
 def get_loan(id):
     # Search for loan by loanID
-    loan = loans_collection.find_one({'loanID': id}, {'_id': 0})  
+    loan =  mongo.db.loans.find_one({'_id': id})  
     if loan:
+        loan['_id'] = str(loan['_id'])
         return jsonify(loan), 200
     else:
         return jsonify({'error': 'Loan not found'}), 404
     
-@loans_bp.route('/loans/<string:id>', methods=['DELETE'])
+@loans_bp.route('/<string:id>', methods=['DELETE'])
 def delete_loan(id):
     # Delete loan by loanID
-    result = loans_collection.delete_one({'loanID': id})  
+    result = mongo.db.loans.delete_one({'_id': id}) 
     if result.deleted_count > 0:
         return jsonify({'id': id}), 200
     else:
@@ -81,20 +85,3 @@ def is_valid_date(date_string):
     if re.match(pattern, date_string):
         return True
     return False
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
