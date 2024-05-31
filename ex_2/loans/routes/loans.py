@@ -3,15 +3,16 @@ from flask import Blueprint, jsonify, request
 from pymongo import MongoClient
 import uuid
 import re
+import os
 
-api_bp = Blueprint('api', __name__)
+loans_bp = Blueprint('loans', __name__)
 
-MONGODB_URL = "mongodb+srv://galtrodel:fxeQJc8Kms8NncXa@cluster0.runjg3c.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-client = MongoClient(MONGODB_URL)
-db = client['library']
-loans_collection = db['loans']
+mongo_uri = os.getenv("MONGODB_URI", "mongodb+srv://galtrodel:fxeQJc8Kms8NncXa@cluster0.runjg3c.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+client = MongoClient(mongo_uri)
+db = client['myDB'] # Assuming the database name is 'myDB', check that out
+loans_collection = db["loans"]
 
-@api_bp.route('/loans', methods=['POST'])
+@loans_bp.route('/loans', methods=['POST'])
 def create_loan():
     # Check for correct content type
     if request.content_type != 'application/json':
@@ -27,7 +28,7 @@ def create_loan():
         return jsonify({'error': 'Invalid date format'}), 422
     # Fetch data from our books API
     base_url = "http://localhost:80/books"
-    query = f"?q=isbn:{data.ISBN}"
+    query = f"?q=isbn:{data['ISBN']}"
     try:
         response = requests.get(base_url + query)
         response.raise_for_status()
@@ -47,13 +48,13 @@ def create_loan():
     except:
         return jsonify({"error": "this is an error"}), 404
 
-@api_bp.route('/loans', methods=['GET'])
+@loans_bp.route('/loans', methods=['GET'])
 def get_loans():
      # all loans without the field _id
     loans = list(loans_collection.find({}, {'_id': 0})) 
     return jsonify(loans), 200
 
-@api_bp.route('/loans/<string:id>', methods=['GET'])
+@loans_bp.route('/loans/<string:id>', methods=['GET'])
 def get_loan(id):
     # Search for loan by loanID
     loan = loans_collection.find_one({'loanID': id}, {'_id': 0})  
@@ -62,7 +63,7 @@ def get_loan(id):
     else:
         return jsonify({'error': 'Loan not found'}), 404
     
-@api_bp.route('/loans/<string:id>', methods=['DELETE'])
+@loans_bp.route('/loans/<string:id>', methods=['DELETE'])
 def delete_loan(id):
     # Delete loan by loanID
     result = loans_collection.delete_one({'loanID': id})  

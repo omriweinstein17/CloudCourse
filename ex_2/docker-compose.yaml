@@ -10,6 +10,7 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data_container:/data/db
+
   books-service:
     build: ./books # path is relative to docker-compose-shorthand.yml location
     volumes:
@@ -18,6 +19,11 @@ services:
         target: /app # container directory
     ports:
       - "5001:80" # host:container
+    depends_on:
+      - mongodb
+    environment:
+      MONGO_URI: mongodb+srv://galtrodel:fxeQJc8Kms8NncXa@cluster0.runjg3c.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+
   loans-service:
     build: ./loans # path is relative to docker-compose-shorthand.yml location
     volumes:
@@ -27,8 +33,13 @@ services:
     environment:
       # tells flask run to run in development mode and reload the code on change. This mode should only be used in development.
       FLASK_DEBUG: "true"
+      MONGO_URI: mongodb+srv://galtrodel:fxeQJc8Kms8NncXa@cluster0.runjg3c.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
     ports:
       - "5002:80" # host:container
+    depends_on:
+      - mongodb
+      - books-service
+
   nginx:
     image: nginx:latest # pulling image from DockerHub
     ports:
@@ -37,5 +48,6 @@ services:
       - type: bind
         source: ./nginx.conf # host directory
         target: /etc/nginx/nginx.conf # container directory
+
 volumes:
   mongodb_data_container:
