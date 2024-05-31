@@ -17,18 +17,6 @@ services:
       - "5001:8001" # host:container
     depends_on:
       - "mongodb"
-  loans-service:
-    build: ./loans # path is relative to docker-compose-shorthand.yml location
-    volumes:
-      - type: bind
-        source: ./loans #host directory
-        target: /app # container directory
-    environment:
-      - MONGO_URL=mongodb://mongodb:27017/LoansDB
-    ports:
-      - "5002:8002" # host:container
-    depends_on:
-      - "mongodb"
   # nginx:
   #   image: nginx:latest # pulling image from DockerHub
   #   ports:
@@ -37,5 +25,3 @@ services:
   #     - type: bind
   #       source: ./nginx.conf # host directory
   #       target: /etc/nginx/nginx.conf # container directory
-volumes:
-  mongodb_data_container:
