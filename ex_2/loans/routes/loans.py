@@ -109,7 +109,7 @@ def delete_loan(id):
         # Delete loan by loanID
         result = mongo.db.loans.delete_one({'_id': id}) 
         if result.deleted_count > 0:
-            return jsonify({'id': id}), 200
+            return jsonify({'loanID': id}), 200
         else:
             return jsonify({'error': 'Loan not found'}), 404
     except Exception as e:
