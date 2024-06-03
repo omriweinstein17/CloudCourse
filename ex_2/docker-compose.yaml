@@ -1,34 +1,36 @@
 version: "1" # version of compose format
 
 services:
-  mongodb:
+  mongo:
     image: mongo:latest
     ports:
       - "27017:27017"
   books-service:
     build: ./books # path is relative to docker-compose-shorthand.yml location
+    restart: always # always restart the container
     volumes:
       - type: bind
         source: ./books #host directory
         target: /usr/src/app # container directory
     environment:
-      - MONGO_URL=mongodb://mongodb:27017/BooksDB
+      - MONGO_URL=mongodb://mongo:27017/BooksDB
     ports:
       - "5001:8001" # host:container
     depends_on:
-      - "mongodb"
+      - "mongo"
   loans-service:
     build: ./loans # path is relative to docker-compose-shorthand.yml location
+    restart: always # always restart the container
     volumes:
       - type: bind
         source: ./loans #host directory
         target: /app # container directory
     environment:
-      - MONGO_URL=mongodb://mongodb:27017/LoansDB
+      - MONGO_URL=mongodb://mongo:27017/LoansDB
     ports:
       - "5002:8002" # host:container
     depends_on:
-      - "mongodb"
+      - "mongo"
       - "books-service"
 
   # nginx:
