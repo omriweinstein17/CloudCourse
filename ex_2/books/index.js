@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
-const PORT = process.env.PORT || 8001;
+const PORT = process.env.PORT || 80;
 
 // Connection URL
 const mongoURI = process.env.MONGO_URL; // Change this to your MongoDB URI

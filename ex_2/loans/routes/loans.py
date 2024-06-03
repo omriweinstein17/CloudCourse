@@ -34,7 +34,7 @@ def create_loan():
         return jsonify({'error': 'member allready borrowed at least 2 books'}), 422
     #
     # Fetch data from our books API
-    base_url = "http://books-service:8001/books"
+    base_url = "http://books-service:80/books"
     isbn = data['ISBN']
     # Make a request to the books service
     # If the book is found, store the loan in our data structure
