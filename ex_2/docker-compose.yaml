@@ -16,6 +16,8 @@ services:
       - MONGO_URL=mongodb://mongo:27017/BooksDB
     ports:
       - "5001:8001" # host:container
+    expose:
+      - 8001
     depends_on:
       - "mongo"
   loans-service:
