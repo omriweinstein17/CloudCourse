@@ -39,28 +39,30 @@ services:
       - "mongo"
       - "books-service"
 
-    loans-service-2:
-      build: ./loans # path is relative to docker-compose-shorthand.yml location
-      restart: always # always restart the container
-      volumes:
-        - type: bind
-          source: ./loans #host directory
-          target: /app # container directory
-      environment:
-        - MONGO_URL=mongodb://mongo:27017/LoansDB
-      ports:
-        - "5003:80" # host:container
-      expose:
-        - 80
-      depends_on:
-        - "mongo"
-        - "books-service"
+  loans-service-2:
+    build: ./loans # path is relative to docker-compose-shorthand.yml location
+    restart: always # always restart the container
+    volumes:
+      - type: bind
+        source: ./loans #host directory
+        target: /app # container directory
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/LoansDB
+    ports:
+      - "5003:80" # host:container
+    expose:
+      - 80
+    depends_on:
+      - "mongo"
+      - "books-service"
 
   nginx:
     build: ./proxy
     restart: always # always restart the container
     ports:
       - "80:80" # host:container
+    expose:
+      - 80
     depends_on:
       - "books-service"
       - "loans-service"
