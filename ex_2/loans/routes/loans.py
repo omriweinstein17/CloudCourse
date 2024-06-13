@@ -30,7 +30,12 @@ def create_loan():
     if mongo.db.loans.find_one({'ISBN': data['ISBN']}) is not None:
         return jsonify({'error': 'Book already on loan'}), 422
     # Check if member has already borrowed more than a book
-    if mongo.db.loans.find_all({'memberName': data['memberName']}).count() > 1:
+    member_loans = mongo.db.loans.find({'memberName': data['memberName']})
+    member_conter = 0
+    for _ in member_loans:
+        member_conter += 1
+    if member_conter >= 2:
+        print("member_conter: ", member_conter)
         return jsonify({'error': 'member allready borrowed at least 2 books'}), 422
     #
     # Fetch data from our books API
