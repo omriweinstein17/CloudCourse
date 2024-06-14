@@ -8,10 +8,6 @@ services:
   books-service:
     build: ./books # path is relative to docker-compose-shorthand.yml location
     restart: always # always restart the container
-    volumes:
-      - type: bind
-        source: ./books #host directory
-        target: /usr/src/app # container directory
     environment:
       - MONGO_URL=mongodb://mongo:27017/BooksDB
       - PORT=80
