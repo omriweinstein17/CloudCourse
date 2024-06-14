@@ -11,9 +11,9 @@ router.get("/", async (req, res) => {
       const ratings = await Rating.find();
       return res.status(200).json(ratings);
     } else {
-      const rating = await Rating.findById(id);
+      const rating = await Rating.findOne({ id });
       return rating
-        ? res.status(200).json(rating)
+        ? res.status(200).json([rating])
         : res.status(404).json({ error: "Book not found" });
     }
   } catch (error) {

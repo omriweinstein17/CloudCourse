@@ -1,6 +1,5 @@
 # Dependency directories
 node_modules/
-*.zip
 
 # Environment variables
 .env

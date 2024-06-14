@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_pymongo import PyMongo
-import os
 from routes.api import api_bp
 from routes.loans import mongo as loans_mongo
 

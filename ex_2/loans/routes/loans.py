@@ -3,8 +3,6 @@ from flask import Blueprint, jsonify, request
 from flask_pymongo import PyMongo
 import uuid
 import re
-import os
-
 
 loans_bp = Blueprint('loans_bp', __name__)
 
@@ -13,7 +11,6 @@ mongo = PyMongo()
 
 @loans_bp.route('/', methods=['POST'])
 def create_loan():
-    print("create_loan")
     # Check for correct content type
     if request.content_type != 'application/json':
         return jsonify({'error': 'Unsupported Media Type, expected application/json'}), 415
@@ -46,12 +43,10 @@ def create_loan():
     try:
         response = requests.get(base_url, params={'ISBN': isbn})
         response.raise_for_status()
-        print(response.json())
         book = None
-        if response.json():
+        if response.json() and response.json()[0]:
             book = response.json()[0]
-        print(book)
-        if response.status_code == 404:
+        if response.status_code == 404 or book is None:
             return jsonify({'error': 'book not found'}), 422
         new_loan = {
             '_id': str(uuid.uuid4()),
@@ -74,12 +69,9 @@ def get_loans():
     try:
         # get a query parameter. we dont know the exact query parameter
         query = request.args.to_dict()
-        # loans = []
-        # if query['loanID'] is not None:
-        #     print("loanID: ", query['loanID'])
-        #     loans.append(mongo.db.loans.find_one({'_id': query['loanID']}))
-        # else:
-            # Search for loans with the given query
+        for field in query.keys(): 
+            if field not in ['memberName', 'ISBN', 'loanDate', "bookID", "title"]:
+                return jsonify({'error': 'Invalid query param'}), 422
         loans = mongo.db.loans.find(query) 
         # Prepare the response
         loan_list = []
@@ -90,8 +82,7 @@ def get_loans():
         return jsonify(loan_list), 200
     except Exception as e:
         print(e)
-        return jsonify(query["loanID"]), 500
-        # return jsonify({"error": "an external error occurred"}), 500
+        return jsonify({"error": "an external error occurred"}), 500
 
 @loans_bp.route('/<string:id>', methods=['GET'])
 def get_loan(id):
