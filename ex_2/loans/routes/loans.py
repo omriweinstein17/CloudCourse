@@ -58,7 +58,7 @@ def create_loan():
         }
         # Store the loan in our data structure
         mongo.db.loans.insert_one(new_loan) 
-        return jsonify(new_loan['_id']), 201
+        return jsonify({"loanID":new_loan['_id']}), 201
     #catch all optional errors
     except Exception as e:
         print(e)

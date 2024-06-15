@@ -56,7 +56,7 @@ router.post("/:id/values", async (req, res) => {
     if (result.nModified === 0) {
       return res.status(404).send("Rating not found or no changes made");
     }
-    return res.status(200).json(rating.average);
+    return res.status(200).json({ average: rating.average });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Error" });

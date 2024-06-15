@@ -123,7 +123,7 @@ router.post("/", async (req, res) => {
     };
     const newRating = new Rating(rating);
     await newRating.save();
-    return res.status(201).json(book.id);
+    return res.status(201).json({ id: book.id });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Error" });
@@ -170,7 +170,7 @@ router.put("/:id", async (req, res) => {
       }
     );
     if (!book) return res.status(404).json({ error: "Book not found" });
-    return res.status(200).json(id);
+    return res.status(200).json({ id });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Error" });
@@ -188,7 +188,7 @@ router.delete("/:id", async (req, res) => {
     if (!rating) {
       return res.status(404).json("Rating not found");
     }
-    return res.status(200).json(id);
+    return res.status(200).json({ id });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Error" });
